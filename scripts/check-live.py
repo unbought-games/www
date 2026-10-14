@@ -29,6 +29,7 @@ for path in ("/", "/style.css", "/favicon.svg", "/social.png", "/robots.txt", "/
         assert response.headers.get("X-Content-Type-Options") == "nosniff", path
         if path == "/":
             assert "default-src 'none'" in response.headers.get("Content-Security-Policy", "")
+            assert "no-transform" in response.headers.get("Cache-Control", "")
             assert "noindex" not in response.headers.get("X-Robots-Tag", "")
         if path == "/social.png":
             assert response.headers.get_content_type() == "image/png"

@@ -154,6 +154,10 @@ web fonts, tracking scripts, or cookies. HTML, CSS, and favicon total about 4 KB
 uncompressed. Sharing crawlers fetch the separate 1200 × 630 PNG; its editable
 source is `artwork/social.svg`.
 
+The `no-transform` cache directive prevents Cloudflare from automatically injecting
+its Web Analytics beacon into the HTML. Exact-file checks deliberately catch any
+such changes in the delivered page. See [Cloudflare's explanation](https://developers.cloudflare.com/web-analytics/get-started/).
+
 Automated local checks cover metadata, assets, transfer budgets, Terraform schema,
 and workflow YAML. Browser visual QA was blocked by the app's browser security
 policy. Live DNS, TLS, redirects, and account permissions remain unverified until

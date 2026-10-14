@@ -1,0 +1,16 @@
+# Copy to backend.tf only AFTER creating the state bucket and its R2 credentials.
+# Then use terraform init -migrate-state, never -reconfigure, to preserve local state.
+terraform {
+  backend "s3" {
+    bucket                      = "unbought-terraform-state"
+    key                         = "bootstrap/terraform.tfstate"
+    region                      = "auto"
+    use_lockfile                = true
+    use_path_style              = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+  }
+}

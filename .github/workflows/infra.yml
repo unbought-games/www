@@ -1,0 +1,72 @@
+name: Website infrastructure
+on:
+  push:
+    branches: [main]
+    paths: ['infra/**', 'bootstrap/**', '.github/workflows/infra.yml']
+  pull_request:
+    paths: ['infra/**', 'bootstrap/**', '.github/workflows/infra.yml']
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply the plan (otherwise plan only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: '1.16.5'
+      - run: terraform -chdir=infra fmt -check
+      - run: terraform -chdir=infra init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=infra validate
+      - run: terraform -chdir=bootstrap fmt -check
+      - run: terraform -chdir=bootstrap init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=bootstrap validate
+
+  provision:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: infrastructure
+    concurrency:
+      group: website-infrastructure
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_INFRA_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      AWS_DEFAULT_REGION: auto
+      TF_VAR_account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      TF_VAR_zone_ids: ${{ vars.CLOUDFLARE_ZONE_IDS }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: '1.16.5'
+      - name: Initialize locked R2 state
+        run: |
+          [[ "$CLOUDFLARE_ACCOUNT_ID" =~ ^[a-f0-9]{32}$ ]]
+          terraform -chdir=infra init -input=false -lockfile=readonly \
+            -backend-config="endpoints={s3=\"https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com\"}"
+      - run: terraform -chdir=infra plan -input=false -out=site.tfplan
+      - if: inputs.apply
+        run: terraform -chdir=infra apply -input=false site.tfplan
+      - name: Preserve state snapshot after apply, including partial failures
+        if: always() && inputs.apply
+        run: |
+          umask 077
+          snapshot="${RUNNER_TEMP}/site-state.json"
+          terraform -chdir=infra state pull > "$snapshot"
+          aws s3 cp "$snapshot" \
+            "s3://unbought-terraform-state/history/www/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.tfstate" \
+            --endpoint-url "https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com" \
+            --only-show-errors

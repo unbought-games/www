@@ -1,0 +1,13 @@
+{
+  "name": "unbought-www",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "wrangler pages dev public --port 4173 --compatibility-date 2026-10-13",
+    "check": "python3 scripts/check.py",
+    "deploy": "wrangler pages deploy public --project-name unbought-www --branch main"
+  },
+  "devDependencies": {
+    "wrangler": "4.150.0"
+  }
+}

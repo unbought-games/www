@@ -34,6 +34,7 @@ jobs:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: infrastructure
     concurrency:
       group: website-infrastructure
@@ -41,14 +42,14 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_INFRA_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       AWS_EC2_METADATA_DISABLED: 'true'
       AWS_DEFAULT_REGION: auto
       TF_VAR_account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       TF_VAR_zone_ids: ${{ vars.CLOUDFLARE_ZONE_IDS }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Obtain temporary credentials for this site's state bucket
+        run: python3 scripts/r2-session.py --github-env
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: '1.16.5'

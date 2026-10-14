@@ -6,7 +6,8 @@ it with HTTP 301, preserving path and query. The future DigitalOcean server is
 only a documented decision; no game infrastructure is being built now.
 
 Repository: [unbought-games/www](https://github.com/unbought-games/www).
-The site is **not deployed** yet; Cloudflare credentials are still needed.
+Production URL: **https://unbought.games/**. Releases and infrastructure runs are
+tracked in [GitHub Actions](https://github.com/unbought-games/www/actions).
 See [hosting decision](docs/hosting.md).
 
 ## What to provide
@@ -36,20 +37,20 @@ Cloudflare's API documentation calls some Edit permissions Write; Single Redirec
 may also appear as Dynamic URL Redirects. There is no need for a Global API Key,
 billing access, or permission to create other tokens.
 
-R2 must be activated on the account. If activation requires accepting terms or
-adding billing details, the account owner completes that once. After Terraform
-creates the private `unbought-terraform-state` bucket, create an **R2 Object Read
-& Write** token scoped only to that bucket, and add its returned values to
-`.env.local`:
+R2 is active and the dedicated `unbought-terraform-state` bucket is provisioned.
+The provided API token can generate one-hour, object-only R2 credentials scoped
+exclusively to this bucket. `scripts/r2-session.py` handles this locally and in CI;
+no separate permanent R2 access key or Terraform Cloud account is needed.
 
-```dotenv
-AWS_ACCESS_KEY_ID=the_r2_access_key_id
-AWS_SECRET_ACCESS_KEY=the_r2_secret_access_key
+For local Terraform commands, load `.env.local` and use:
+
+```sh
+python3 scripts/r2-session.py --exec terraform -chdir=infra plan
 ```
 
-The variable names are required by the S3-compatible backend; no AWS account is
-used. An optional Pages-only token can go in `CLOUDFLARE_DEPLOY_TOKEN` to keep
-routine releases separate from infrastructure access.
+The wrapper keeps temporary credentials in the child process environment. The
+`--github-env` mode masks them and exports them only for that GitHub Actions job.
+An optional narrower Pages-only token can be used for content deployments.
 
 ## Terraform ownership and bootstrap
 
@@ -71,10 +72,11 @@ python3 scripts/cloudflare-inspect.py
 ```
 
 The inspector only reads Cloudflare. It discovers zone IDs and writes ignored
-local variables and an inspection report. Existing website DNS records, Pages
-resources, and redirect rulesets must be imported into Terraform before applying.
-Merge existing redirect rules instead of replacing unrelated rules. Mail and other
-DNS records are outside the configuration.
+local variables and an inspection report. On the initial launch, the owner explicitly requested removal of all existing
+DNS records: four registrar mail-forwarding MX records and one SPF TXT record
+were removed using an isolated Terraform plan. No existing R2 buckets were
+changed. For subsequent changes, inspect and import existing resources before
+applying; do not repeat the initial cleanup automatically.
 
 The state bucket is the one-time bootstrap dependency:
 
@@ -84,12 +86,13 @@ terraform -chdir=bootstrap plan -out=bootstrap.tfplan
 terraform -chdir=bootstrap apply bootstrap.tfplan
 ```
 
-If the bucket exists, inspect/import it first. Once its bucket-scoped R2 key is
-available, load `.env.local` again and migrate bootstrap state:
+Bootstrap has already completed for this account. For a new account, inspect or
+import an existing bucket before proceeding, then migrate bootstrap state using
+a temporary R2 session:
 
 ```sh
 cp bootstrap/backend.tf.example bootstrap/backend.tf
-terraform -chdir=bootstrap init -migrate-state \
+python3 scripts/r2-session.py --exec terraform -chdir=bootstrap init -migrate-state \
   -backend-config="endpoints={s3=\"https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com\"}"
 ```
 
@@ -120,7 +123,7 @@ Configure GitHub environments restricted to `main`:
 
 | Environment | Secrets |
 | --- | --- |
-| `infrastructure` | `CLOUDFLARE_INFRA_TOKEN`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` |
+| `infrastructure` | `CLOUDFLARE_INFRA_TOKEN` (also issues temporary R2 sessions) |
 | `production` | `CLOUDFLARE_DEPLOY_TOKEN` (Pages-only preferred) |
 
 No secrets belong in committed `.tfvars`, plan files, or backend configuration.

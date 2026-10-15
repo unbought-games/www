@@ -150,9 +150,17 @@ npm run check
 
 Preview at `http://localhost:4173`. Only `public/` is uploaded. Wrangler is
 development/deployment tooling; the page has no browser JavaScript, framework,
-web fonts, tracking scripts, or cookies. HTML, CSS, and favicon total about 4 KB
-uncompressed. Sharing crawlers fetch the separate 1200 × 630 PNG; its editable
-source is `artwork/social.svg`.
+web fonts, tracking scripts, or cookies. HTML, CSS, favicon, and the outlined
+logo stay under 12 KB uncompressed. Sharing crawlers fetch the separate
+1200 × 630 PNG; its editable source is `artwork/social.svg`.
+
+The approved F3 logo assets, 1024 px symbol, wordmarks, and offline mini design
+guide are in [`artwork/brand/`](artwork/brand/README.md). Open
+`artwork/brand/guide.html` locally, or serve that folder separately. The complete
+handoff is `artwork/brand/unbought-brand-kit.zip`. Rebuild instructions and the
+font license live with the assets. The site uses the one-line `public/logo.svg`
+normally and `public/logo-stacked.svg` below 480 px. Only these two logos, the
+favicon, and the social card are deployed; the full kit is not deployed.
 
 The `no-transform` cache directive prevents Cloudflare from automatically injecting
 its Web Analytics beacon into the HTML. Exact-file checks deliberately catch any

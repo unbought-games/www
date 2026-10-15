@@ -12,11 +12,13 @@ Open **guide.html** for the visual guide. It works offline alongside `exports/`.
 | Asset | Use | PNG export |
 | --- | --- | --- |
 | `exports/unbought-symbol.svg` | Avatars, app icons, favicon, small brand marks | 1024 × 1024, transparent, 128 px clear space on each side |
+| `exports/unbought-discord.svg` | Discord server icon; light symbol on solid black, readable in either theme | 1024 × 1024, opaque, same 128 px clear space |
 | `exports/unbought-wordmark.svg` | Headers and layouts where the name is sufficient | 2400 px wide, transparent |
 | `exports/unbought-games.svg` | Primary one-line “unbought games” lockup; headers and press | 2400 px wide, transparent |
 | `exports/unbought-games-stacked.svg` | Compact two-line lockup: unbought above Games | 2400 px wide, transparent |
 
-Each has a matching PNG. The `-light` files use paper-colored artwork for dark
+Each has a matching PNG. The Discord variant uses the existing paper-colored
+symbol on a black (#000000) background. The `-light` files use paper-colored artwork for dark
 backgrounds. Prefer SVG for web and print; PNG is for services that require it.
 The source SVGs contain paths, not live text, so no font installation is needed.
 

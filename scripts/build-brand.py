@@ -84,11 +84,11 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     word, advance = wordmark()
     width, word_height, stacked_height = advance + 8, 57, 108
-    # Games is full-size typography, not a small uppercase descriptor.
+    # Both lockups use full-size, lowercase games.
     games_x = advance + 4 + 14
     games, games_width = lettering("games", games_x, 40, 47, weight=700)
     inline_width = games_x + games_width + 4
-    stacked_games, _ = lettering("Games", 4, 92, 47, weight=700)
+    stacked_games, _ = lettering("games", 4, 92, 47, weight=700)
     word = f'<g transform="translate(4 0)">{word}</g>'
     for suffix, color in (("", INK), ("-light", PAPER)):
         export("unbought-symbol" + suffix, document(
@@ -97,9 +97,9 @@ def main():
         export("unbought-wordmark" + suffix, document(
             word, width, word_height, "Unbought", color), 2400)
         export("unbought-games" + suffix, document(
-            word + games, inline_width, word_height, "Unbought Games", color), 2400)
+            word + games, inline_width, word_height, "unbought games", color), 2400)
         export("unbought-games-stacked" + suffix, document(
-            word + stacked_games, width, stacked_height, "Unbought Games", color), 2400)
+            word + stacked_games, width, stacked_height, "unbought games", color), 2400)
 
     (ROOT / "public/logo.svg").write_bytes((OUT / "unbought-games.svg").read_bytes())
     (ROOT / "public/logo-stacked.svg").write_bytes((OUT / "unbought-games-stacked.svg").read_bytes())
@@ -128,7 +128,7 @@ def main():
 
     manifest = {
         "design": "F3 — Two pieces, one O (original approved diagonal design)",
-        "font": "Space Grotesk 2.000; unbought and games/Games 700; same 47-unit type size; all lettering outlined",
+        "font": "Space Grotesk 2.000; unbought and games 700; same 47-unit type size; all lettering outlined",
         "font_sha256": hashlib.sha256(FONT.read_bytes()).hexdigest(),
         "ink": INK, "paper": PAPER,
         "wordmark_svg_size": [round(width, 3), word_height],

@@ -66,6 +66,44 @@ resource "cloudflare_dns_record" "primary" {
   depends_on = [cloudflare_pages_domain.primary]
 }
 
+resource "cloudflare_dns_record" "zoho_verification" {
+  zone_id = var.zone_ids.games
+  name    = "unbought.games"
+  type    = "TXT"
+  content = "zoho-verification=zb89309426.zmverify.zoho.com"
+  ttl     = 1
+}
+
+resource "cloudflare_dns_record" "zoho_mx" {
+  for_each = {
+    "mx.zoho.com"  = 10
+    "mx2.zoho.com" = 20
+    "mx3.zoho.com" = 50
+  }
+  zone_id  = var.zone_ids.games
+  name     = "unbought.games"
+  type     = "MX"
+  content  = each.key
+  priority = each.value
+  ttl      = 60
+}
+
+resource "cloudflare_dns_record" "zoho_spf" {
+  zone_id = var.zone_ids.games
+  name    = "unbought.games"
+  type    = "TXT"
+  content = "v=spf1 include:zohomail.com ~all"
+  ttl     = 60
+}
+
+resource "cloudflare_dns_record" "zoho_dkim" {
+  zone_id = var.zone_ids.games
+  name    = "zmail._domainkey.unbought.games"
+  type    = "TXT"
+  content = "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXJHxg13L/KFCD2hD4RVh40XVei0pUBP0oDU7cJI9KC8j9kiITxlqeL+xvJdnYjZsrSRSau06v/ewjolc/IaxUsEfHErFD+a1uPwb23WMVgWqffw7DvOH5jnwBT/t9AzfILkP4Kw7eWx3Ls5OvRezpwu21Sca4UCYU+nYSdK8h6wIDAQAB"
+  ttl     = 60
+}
+
 locals {
   aliases = {
     "www.unbought.games"    = var.zone_ids.games

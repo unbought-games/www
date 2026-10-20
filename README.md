@@ -2,8 +2,9 @@
 
 Pure static HTML/CSS, hosted on **Cloudflare Pages**. The canonical domain is
 **https://unbought.games/**; `unboughtgames.com` and both `www` aliases redirect to
-it with HTTP 301, preserving path and query. The future DigitalOcean server is
-only a documented decision; no game infrastructure is being built now.
+it with HTTP 301, preserving path and query. The approved Accounts and Orbit
+launch uses AWS EC2 with RDS PostgreSQL; application infrastructure is owned by the sibling
+[`infra` repository](https://github.com/unbought-games/infra).
 
 Repository: [unbought-games/www](https://github.com/unbought-games/www).
 Production URL: **https://unbought.games/**. Releases and infrastructure runs are
@@ -55,8 +56,12 @@ An optional narrower Pages-only token can be used for content deployments.
 ## Terraform ownership and bootstrap
 
 - `bootstrap/`: private R2 state bucket, public development URL explicitly disabled.
-- `infra/`: Pages Direct Upload project, custom domain, four DNS records, and
-  canonical redirects on the two existing zones.
+- `infra/`: Pages Direct Upload project, custom domain, website DNS records,
+  Zoho Mail verification/MX/SPF/DKIM records, and canonical redirects on the two
+  existing zones. Zoho mail delivery and authentication records use a 60-second TTL.
+  `infra/launch.tf` also owns the Accounts host A record and AWS SES DKIM CNAMEs;
+  the AWS infrastructure supplies their values. Existing mailbox records remain
+  independent of transactional email.
 - GitHub Actions: infrastructure plan/apply and static file releases.
 
 Use Terraform **1.10+** (CI pins 1.16.5) for native S3 lockfiles.
@@ -166,7 +171,6 @@ The `no-transform` cache directive prevents Cloudflare from automatically inject
 its Web Analytics beacon into the HTML. Exact-file checks deliberately catch any
 such changes in the delivered page. See [Cloudflare's explanation](https://developers.cloudflare.com/web-analytics/get-started/).
 
-Automated local checks cover metadata, assets, transfer budgets, Terraform schema,
-and workflow YAML. Browser visual QA was blocked by the app's browser security
-policy. Live DNS, TLS, redirects, and account permissions remain unverified until
-the credentials are supplied and CI deployment succeeds.
+Automated checks cover metadata, assets, transfer budgets and Terraform schema.
+The production workflow checks live DNS, TLS, redirects and exact deployed files
+after each website release.

@@ -21,7 +21,7 @@ def fetch(url):
 
 base = "https://unbought.games"
 public = Path(__file__).resolve().parents[1] / "public"
-for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml", "/terms/", "/privacy/", "/conduct/", "/policy.css", "/art/credits.txt"):
+for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml", "/terms/", "/privacy/", "/conduct/", "/policy.css", "/art/credits.txt", "/art/planet-03-320.webp", "/art/planet-03-640.webp"):
     with fetch(base + path) as response:
         assert response.status == 200, (path, response.status)
         expected = public / (path.lstrip("/") or "index.html")

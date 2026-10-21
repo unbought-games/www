@@ -156,7 +156,8 @@ npm run check
 Preview at `http://localhost:4173`. Only `public/` is uploaded. Wrangler is
 development/deployment tooling; the page has no browser JavaScript, framework,
 web fonts, tracking scripts, or cookies. HTML, CSS, favicon, and the outlined
-logo stay under 12 KB uncompressed. Sharing crawlers fetch the separate
+logo stay under 16 KB uncompressed. The Orbit section lazily loads one responsive
+planet image; its two bundled variants total less than 180 KB. Sharing crawlers fetch the separate
 1200 × 630 PNG; its editable source is `artwork/social.svg`.
 
 The approved F3 logo assets, 1024 px symbol, wordmarks, and offline mini design
@@ -174,3 +175,32 @@ such changes in the delivered page. See [Cloudflare's explanation](https://devel
 Automated checks cover metadata, assets, transfer budgets and Terraform schema.
 The production workflow checks live DNS, TLS, redirects and exact deployed files
 after each website release.
+
+## Website launch status
+
+The homepage describes the early Orbit Imperium open beta, incomplete content and
+possible universe reset before full launch. It truthfully says registration is
+unavailable while email setup is completed, and links to the source and Discord.
+The approved F3 lockups are unchanged. Orbit planet art is copied unchanged with
+credit and license in `public/art/credits.txt`.
+
+The adopted hosted-service policies live at `/terms/`, `/privacy/` and `/conduct/`.
+Keep their version and substantive text synchronized with Accounts' consent flow.
+Policy changes require owner review; do not silently substitute placeholder text.
+
+Once email delivery, Accounts registration and Orbit access are verified publicly,
+replace the availability sentence and launch-gate comment in `public/index.html`
+and prepend these links to `.game-links`:
+
+```html
+<p class="availability">Public registration is open.</p>
+<!-- Put these anchors inside .game-links, keeping source/community links. -->
+<a href="https://orbitimperium.com/">Join the open beta <span aria-hidden="true">↗</span></a>
+<a href="https://accounts.unbought.games/">Your account <span aria-hidden="true">↗</span></a>
+```
+
+Update the eyebrow to “Open beta” at the same time. Keep the incomplete-game and
+universe-reset note visible. Verify the registration flow and both destinations,
+run desktop/mobile checks, then merge and deploy the opening change. Website copy
+does not control the applications' access gates. There is no waitlist, newsletter
+collection or account sign-up form on this static site.

@@ -17,7 +17,7 @@ class Page(HTMLParser):
         self.tags.append((tag, dict(attributes)))
 
 
-for path in ROOT.glob("*.html"):
+for path in ROOT.rglob("*.html"):
     page = Page(path.read_text())
     assert any(t == "html" and a.get("lang") == "en" for t, a in page.tags), path
     assert sum(t == "h1" for t, _ in page.tags) == 1, path
@@ -27,6 +27,8 @@ for path in ROOT.glob("*.html"):
             value = attrs.get(key, "")
             if value.startswith("/"):
                 target = ROOT / (value.lstrip("/") or "index.html")
+                if target.is_dir():
+                    target = target / "index.html"
                 assert target.is_file(), f"Missing asset: {value}"
         for candidate in attrs.get("srcset", "").split(","):
             parts = candidate.split()
@@ -63,7 +65,9 @@ assert sitemap.find("{*}url/{*}loc").text == metadata["og:url"]
 # A picture selects one logo per initial load. Budget the larger variant.
 render_bytes = sum((ROOT / p).stat().st_size for p in ("index.html", "style.css", "favicon.svg"))
 render_bytes += max((ROOT / p).stat().st_size for p in ("logo.svg", "logo-stacked.svg"))
-assert render_bytes < 12_000, f"Initial page exceeds 12 KB: {render_bytes}"
+assert render_bytes < 16_000, f"Initial page exceeds 16 KB: {render_bytes}"
 assert len(png) < 150_000, "Social card exceeds 150 KB"
+# Game art loads below the mission, separately from the initial text/logo budget.
+assert sum(p.stat().st_size for p in (ROOT / "art").glob("*.webp")) < 180_000, "Responsive game art exceeds 180 KB"
 assert not list(ROOT.rglob("*.js")), "No JavaScript runtime is needed"
 print(f"Static checks passed. Initial page: {render_bytes:,} bytes; social card: {len(png):,} bytes.")

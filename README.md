@@ -156,7 +156,8 @@ npm run check
 Preview at `http://localhost:4173`. Only `public/` is uploaded. Wrangler is
 development/deployment tooling; the page has no browser JavaScript, framework,
 web fonts, tracking scripts, or cookies. HTML, CSS, favicon, and the outlined
-logo stay under 12 KB uncompressed. Sharing crawlers fetch the separate
+logo stay under 16 KB uncompressed. The Orbit section lazily loads one responsive
+planet image; its two bundled variants total less than 180 KB. Sharing crawlers fetch the separate
 1200 × 630 PNG; its editable source is `artwork/social.svg`.
 
 The approved F3 logo assets, 1024 px symbol, wordmarks, and offline mini design
@@ -174,3 +175,28 @@ such changes in the delivered page. See [Cloudflare's explanation](https://devel
 Automated checks cover metadata, assets, transfer budgets and Terraform schema.
 The production workflow checks live DNS, TLS, redirects and exact deployed files
 after each website release.
+
+## Website launch review
+
+The homepage draft describes Orbit Imperium as preparing for launch. It links to
+the public source and Discord while explicitly saying registration is closed.
+The approved F3 website lockups are unchanged; planet art is copied unchanged
+from Orbit's original asset set, with credit and license in `public/art/credits.txt`.
+
+Do not merge this draft or publish active Play/Accounts links until the owner has
+reviewed the page and approved opening access. Once Accounts registration and
+Orbit access are public, replace the availability sentence and launch-gate comment
+in `public/index.html`, and prepend these links to `.game-links`:
+
+```html
+<p class="availability">Public registration is open.</p>
+<!-- Put the following anchors inside .game-links, keeping source/community links. -->
+<a href="https://orbitimperium.com/">Play Orbit Imperium <span aria-hidden="true">↗</span></a>
+<a href="https://accounts.unbought.games/">Your account <span aria-hidden="true">↗</span></a>
+```
+
+Before that switch, verify both destinations, complete the operator launch checks,
+and publish approved legal destinations. Add policy navigation only after those
+pages exist. The website does not control registration or operator access gates.
+There is no date promise, waitlist, newsletter collection, or account sign-up form
+on the current draft.

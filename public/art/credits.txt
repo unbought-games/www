@@ -1,0 +1,12 @@
+Orbit Imperium planet artwork
+
+Credit: Orbit Imperium contributors / Unbought Games, LLC.
+License: Creative Commons Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/
+Source: https://github.com/unbought-games/orbit-imperium
+Files: apps/web/public/art/atlas/planet-03-320.webp and planet-03-640.webp
+Changes: none; original exported WebP assets copied without modification.
+Original game artwork generated with OpenAI; upstream provenance and licensing
+scope are retained in the source repository.
+
+The unbought games logos remain subject to their separate branding terms.

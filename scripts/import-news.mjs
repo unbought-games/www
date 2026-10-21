@@ -34,14 +34,18 @@ export async function importNews(root, games) {
     await mkdir(cache,{recursive:true});
     const git = (...args) => execFileSync('git',['-C',cache,...args],{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
     git('init','--bare','--quiet');
+    git('config','remote.origin.url',`https://github.com/${source.repository}.git`);
+    git('config','remote.origin.promisor','true');
+    git('config','remote.origin.partialclonefilter','blob:none');
     const fetch = commit => {
       if (!shaPattern.test(commit)) throw new Error('Invalid revision');
       try { git('cat-file','-e',commit+'^{commit}'); }
-      catch { git('fetch','--quiet',`https://github.com/${source.repository}.git`,commit); }
+      catch { git('fetch','--quiet','--filter=blob:none','origin',commit); }
     };
     for (const record of source.deployments) {
-      validateRecord(record,'deployment'); fetch(record.commit);
+      validateRecord(record,'deployment');
       if (!record.previous) continue; // Establishing a baseline must not announce the entire repository history.
+      fetch(record.commit);
       fetch(record.previous);
       try { git('merge-base','--is-ancestor',record.previous,record.commit); }
       catch { continue; } // A rollback is not a new feature announcement.

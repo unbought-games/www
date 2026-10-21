@@ -73,8 +73,9 @@ build doesn't know when an operator deployed it.
 
 ## Credentials and recovery
 
-Each publishing repository receives its own `WWW_PUBLISH_TOKEN`: a fine-grained GitHub token
-with Contents read/write access only to www. Trusted publication jobs clone www, write the record,
+Each publishing repository receives its own `WWW_PUBLISH_KEY`: a write deploy key
+limited to www. Organizations that disable deploy keys can instead configure
+`WWW_PUBLISH_TOKEN`, a fine-grained token with Contents read/write access only to www. Trusted publication jobs clone www, write the record,
 and push main, triggering normal website CI. PR jobs never receive these keys.
 
 An official deployment's news job is separate from its deployment job. Retry the

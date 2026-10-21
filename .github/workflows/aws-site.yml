@@ -1,0 +1,50 @@
+name: AWS website
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - run: python3 scripts/check.py
+      - run: python3 -m py_compile scripts/deploy-aws.py scripts/check-aws.py
+
+  deploy:
+    needs: check
+    # Opt-in lets Cloudflare remain the production release destination until cutover.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AWS_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: website-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v6
+        with:
+          role-to-assume: ${{ vars.AWS_WEBSITE_ROLE_ARN }}
+          aws-region: us-east-2
+          allowed-account-ids: '888782969020'
+      - name: Publish and verify AWS website
+        env:
+          WEBSITE_BUCKET: ${{ vars.AWS_WEBSITE_BUCKET }}
+          DISTRIBUTION_ID: ${{ vars.AWS_WEBSITE_DISTRIBUTION_ID }}
+          EDGE_DOMAIN: ${{ vars.AWS_WEBSITE_EDGE_DOMAIN }}
+        run: |
+          python3 scripts/deploy-aws.py --bucket "$WEBSITE_BUCKET" --distribution-id "$DISTRIBUTION_ID"
+          python3 scripts/check-aws.py --edge "$EDGE_DOMAIN"

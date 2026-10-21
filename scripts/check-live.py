@@ -1,5 +1,6 @@
 """Verify an actual Pages release, including canonical redirects and security headers."""
 from pathlib import Path
+import argparse
 from urllib.error import HTTPError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -19,9 +20,11 @@ def fetch(url):
         return error
 
 
-base = "https://unbought.games"
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--base', default='https://unbought.games', choices=['https://unbought.games', 'https://unbought-www.pages.dev'])
+base = parser.parse_args().base
 public = Path(__file__).resolve().parents[1] / "dist"
-for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml", "/terms/", "/privacy/", "/conduct/", "/policy.css", "/art/credits.txt", "/art/planet-03-320.webp", "/art/planet-03-640.webp"):
+for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml", "/terms/", "/privacy/", "/conduct/", "/policy.css", "/art/credits.txt", "/art/planet-03-320.webp", "/art/planet-03-640.webp", "/news/", "/news.css", "/share.js", "/feeds/all/all.xml"):
     with fetch(base + path) as response:
         assert response.status == 200, (path, response.status)
         expected = public / (path.lstrip("/") or "index.html")
@@ -32,7 +35,10 @@ for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg"
         if path == "/":
             assert "default-src 'none'" in response.headers.get("Content-Security-Policy", "")
             assert "no-transform" in response.headers.get("Cache-Control", "")
-            assert "noindex" not in response.headers.get("X-Robots-Tag", "")
+            if base == 'https://unbought.games':
+                assert "noindex" not in response.headers.get("X-Robots-Tag", "")
+            else:
+                assert "noindex" in response.headers.get("X-Robots-Tag", "")
         if path == "/social.png":
             assert response.headers.get_content_type() == "image/png"
 
@@ -43,6 +49,6 @@ for origin in ("http://unbought.games", "https://www.unbought.games",
                "https://unboughtgames.com", "https://www.unboughtgames.com"):
     with fetch(origin + "/example/path?source=release-check") as response:
         assert response.status == 301, (origin, response.status)
-        assert response.headers.get("Location") == base + "/example/path?source=release-check", origin
+        assert response.headers.get("Location") == "https://unbought.games/example/path?source=release-check", origin
 
 print("Live release verified: exact files, security headers, social image, 404, and domain redirects.")

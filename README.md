@@ -176,27 +176,31 @@ Automated checks cover metadata, assets, transfer budgets and Terraform schema.
 The production workflow checks live DNS, TLS, redirects and exact deployed files
 after each website release.
 
-## Website launch review
+## Website launch status
 
-The homepage draft describes Orbit Imperium as preparing for launch. It links to
-the public source and Discord while explicitly saying registration is closed.
-The approved F3 website lockups are unchanged; planet art is copied unchanged
-from Orbit's original asset set, with credit and license in `public/art/credits.txt`.
+The homepage describes the early Orbit Imperium open beta, incomplete content and
+possible universe reset before full launch. It truthfully says registration is
+unavailable while email setup is completed, and links to the source and Discord.
+The approved F3 lockups are unchanged. Orbit planet art is copied unchanged with
+credit and license in `public/art/credits.txt`.
 
-Do not merge this draft or publish active Play/Accounts links until the owner has
-reviewed the page and approved opening access. Once Accounts registration and
-Orbit access are public, replace the availability sentence and launch-gate comment
-in `public/index.html`, and prepend these links to `.game-links`:
+The adopted hosted-service policies live at `/terms/`, `/privacy/` and `/conduct/`.
+Keep their version and substantive text synchronized with Accounts' consent flow.
+Policy changes require owner review; do not silently substitute placeholder text.
+
+Once email delivery, Accounts registration and Orbit access are verified publicly,
+replace the availability sentence and launch-gate comment in `public/index.html`
+and prepend these links to `.game-links`:
 
 ```html
 <p class="availability">Public registration is open.</p>
-<!-- Put the following anchors inside .game-links, keeping source/community links. -->
-<a href="https://orbitimperium.com/">Play Orbit Imperium <span aria-hidden="true">↗</span></a>
+<!-- Put these anchors inside .game-links, keeping source/community links. -->
+<a href="https://orbitimperium.com/">Join the open beta <span aria-hidden="true">↗</span></a>
 <a href="https://accounts.unbought.games/">Your account <span aria-hidden="true">↗</span></a>
 ```
 
-Before that switch, verify both destinations, complete the operator launch checks,
-and publish approved legal destinations. Add policy navigation only after those
-pages exist. The website does not control registration or operator access gates.
-There is no date promise, waitlist, newsletter collection, or account sign-up form
-on the current draft.
+Update the eyebrow to “Open beta” at the same time. Keep the incomplete-game and
+universe-reset note visible. Verify the registration flow and both destinations,
+run desktop/mobile checks, then merge and deploy the opening change. Website copy
+does not control the applications' access gates. There is no waitlist, newsletter
+collection or account sign-up form on this static site.

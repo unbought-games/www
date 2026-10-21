@@ -17,7 +17,7 @@ class Page(HTMLParser):
         self.tags.append((tag, dict(attributes)))
 
 
-for path in ROOT.glob("*.html"):
+for path in ROOT.rglob("*.html"):
     page = Page(path.read_text())
     assert any(t == "html" and a.get("lang") == "en" for t, a in page.tags), path
     assert sum(t == "h1" for t, _ in page.tags) == 1, path
@@ -27,6 +27,8 @@ for path in ROOT.glob("*.html"):
             value = attrs.get(key, "")
             if value.startswith("/"):
                 target = ROOT / (value.lstrip("/") or "index.html")
+                if target.is_dir():
+                    target = target / "index.html"
                 assert target.is_file(), f"Missing asset: {value}"
         for candidate in attrs.get("srcset", "").split(","):
             parts = candidate.split()

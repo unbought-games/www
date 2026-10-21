@@ -21,10 +21,12 @@ def fetch(url):
 
 base = "https://unbought.games"
 public = Path(__file__).resolve().parents[1] / "public"
-for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml"):
+for path in ("/", "/style.css", "/logo.svg", "/logo-stacked.svg", "/favicon.svg", "/social.png", "/robots.txt", "/sitemap.xml", "/terms/", "/privacy/", "/conduct/", "/policy.css", "/art/credits.txt"):
     with fetch(base + path) as response:
         assert response.status == 200, (path, response.status)
         expected = public / (path.lstrip("/") or "index.html")
+        if expected.is_dir():
+            expected = expected / "index.html"
         assert response.read() == expected.read_bytes(), f"Stale or changed artifact: {path}"
         assert response.headers.get("X-Content-Type-Options") == "nosniff", path
         if path == "/":

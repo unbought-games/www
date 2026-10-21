@@ -19,3 +19,6 @@ __pycache__/
 *.pyc
 # The brand handoff is a deliverable, even when a global ignore excludes ZIPs.
 !/artwork/brand/unbought-brand-kit.zip
+
+dist/
+.cache/

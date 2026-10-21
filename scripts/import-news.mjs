@@ -53,10 +53,10 @@ export async function importNews(root, games) {
       if (!changes.length) continue;
       const id = `${subject}-update-${record.id}`;
       const post = {
-        id,title:`${game.name} update · ${record.published.slice(0,10)}`,
+        id,title:`${game.name} update · ${new Date(record.published).toISOString().slice(0,16).replace('T',' ') + ' UTC'}`,
         summary:changes.length === 1 ? changes[0].text : `${changes.length} changes are live on the official server.`,
         date:record.published,subject,kind:'patch',template:'release',
-        body:`These changes are live on the official ${game.name} server. They may not be included in the latest numbered open-source release.\n\n## Changes\n\n${changes.map(c=>`- ${c.text.replace(/[\\[\]<>*_`]/g,'\\$&')} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
+        body:`These changes are live on the official ${game.name} server. Official-server updates are published independently of numbered open-source releases.\n\n## Changes\n\n${changes.map(c=>`- ${c.text.replace(/[\\[\]<>*_`]/g,'\\$&')} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
       };
       result.push({...post,id,subject,kind:'patch',date:record.published,source:`https://github.com/${source.repository}/commit/${record.commit}`});
     }

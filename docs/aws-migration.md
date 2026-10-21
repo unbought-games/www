@@ -3,9 +3,13 @@
 Verified AWS preview: https://d34vrnpxc6m9sz.cloudfront.net. Detailed evidence and
 nameserver handoff are recorded in `infra/services/www/production/status.md`.
 
-Authorized 2026-10-21. The AWS website is prepared independently of current public
-DNS. The owner will update Namecheap after giving the go-ahead. Until then,
-Cloudflare remains the public website and DNS provider.
+The owner reported updating Namecheap on 2026-10-21. Both preparation PRs are
+merged, AWS releases are enabled, and the first GitHub OIDC deployment passed:
+https://github.com/unbought-games/www/actions/runs/39632068732
+
+Both `.com` domains have AWS parent delegation. The `.games` registry still showed
+Cloudflare at the cutover check, so Cloudflare hosting, releases and state remain
+available during the overlap. See the infra cutover status for current evidence.
 
 Infrastructure ownership lives in the sibling infra repository:
 

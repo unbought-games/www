@@ -1,7 +1,9 @@
 # Unbought public website
 
-AWS migration preparation is authorized as of 2026-10-21. Public DNS remains on
-Cloudflare until the owner changes Namecheap nameservers. New AWS resources are
+AWS migration is underway as of 2026-10-21. The owner reported changing Namecheap
+nameservers; AWS releases are enabled and the first automated release passed.
+The `.games` registry still showed Cloudflare at the cutover check, so both
+hosting paths remain available during propagation. New AWS resources are
 owned by `../infra/services/www/production` and `../infra/dns/aws`; existing
 Cloudflare resources and R2 state retain their current owners during overlap.
 See [AWS preparation](docs/aws-migration.md) for testing and release commands.

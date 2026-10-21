@@ -8,7 +8,7 @@ owned by `../infra/services/www/production` and `../infra/dns/aws`; existing
 Cloudflare resources and R2 state retain their current owners during overlap.
 See [AWS preparation](docs/aws-migration.md) for testing and release commands.
 
-Pure static HTML/CSS, hosted on **Cloudflare Pages**. The canonical domain is
+Statically generated HTML/CSS, deployed to **AWS S3/CloudFront** (with Cloudflare retained during the DNS migration). The canonical domain is
 **https://unbought.games/**; `unboughtgames.com` and both `www` aliases redirect to
 it with HTTP 301, preserving path and query. The approved Accounts and Orbit
 launch uses AWS EC2 with RDS PostgreSQL; application infrastructure is owned by the sibling
@@ -161,10 +161,9 @@ npm run dev
 npm run check
 ```
 
-Preview at `http://localhost:4173`. Only `public/` is uploaded. Wrangler is
-development/deployment tooling; the page has no browser JavaScript, framework,
-web fonts, tracking scripts, or cookies. HTML, CSS, favicon, and the outlined
-logo stay under 16 KB uncompressed. The Orbit section lazily loads one responsive
+Preview at `http://localhost:4173`. Only the generated `dist/` is uploaded. Wrangler is
+development/deployment tooling; the page has no frontend framework,
+web fonts, tracking scripts, or cookies. The homepage, styles, favicon, and outlined logo stay under 32 KB uncompressed. The Orbit section lazily loads one responsive
 planet image; its two bundled variants total less than 180 KB. Sharing crawlers fetch the separate
 1200 × 630 PNG; its editable source is `artwork/social.svg`.
 
@@ -201,3 +200,14 @@ Only deploy an active signup call to action after public account/game entry is
 reachable and the intended registration path is verified. Website copy does not
 control application access gates. There is no waitlist, newsletter collection or
 account sign-up form on this static site.
+
+## News and release publishing
+
+See [news publishing](docs/news-publishing.md) for Markdown authoring, filter URLs,
+RSS feeds, game imports, publishing credentials, and recovery. `npm run build`
+generates `dist/`; deployments upload that directory. `public/` holds source assets,
+and `templates/home.html` is the homepage source. The only browser JavaScript is
+optional native sharing/copy-link support; browsing and feeds need none.
+
+The reusable writing and announcement skills are in `docs/skills/`. Install them
+locally with `python3 scripts/install-skills.py`.

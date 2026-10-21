@@ -4,7 +4,7 @@ from pathlib import Path
 import struct
 import xml.etree.ElementTree as ET
 
-ROOT = Path(__file__).resolve().parents[1] / "public"
+ROOT = Path(__file__).resolve().parents[1] / "dist"
 
 
 class Page(HTMLParser):
@@ -21,12 +21,12 @@ for path in ROOT.rglob("*.html"):
     page = Page(path.read_text())
     assert any(t == "html" and a.get("lang") == "en" for t, a in page.tags), path
     assert sum(t == "h1" for t, _ in page.tags) == 1, path
-    assert not any(t == "script" for t, _ in page.tags), "Keep this site JavaScript-free"
+    assert all(a.get("src") == "/share.js" and "defer" in a for t, a in page.tags if t == "script"), "Only progressive sharing script is allowed"
     for tag, attrs in page.tags:
         for key in ("href", "src"):
             value = attrs.get(key, "")
             if value.startswith("/"):
-                target = ROOT / (value.lstrip("/") or "index.html")
+                target = ROOT / (value.split("#")[0].split("?")[0].lstrip("/") or "index.html")
                 if target.is_dir():
                     target = target / "index.html"
                 assert target.is_file(), f"Missing asset: {value}"
@@ -63,11 +63,11 @@ assert sitemap.find("{*}url/{*}loc").text == metadata["og:url"]
 
 # Transfer budgets catch accidental frameworks, fonts, and oversized artwork.
 # A picture selects one logo per initial load. Budget the larger variant.
-render_bytes = sum((ROOT / p).stat().st_size for p in ("index.html", "style.css", "favicon.svg"))
+render_bytes = sum((ROOT / p).stat().st_size for p in ("index.html", "style.css", "news.css", "favicon.svg"))
 render_bytes += max((ROOT / p).stat().st_size for p in ("logo.svg", "logo-stacked.svg"))
-assert render_bytes < 16_000, f"Initial page exceeds 16 KB: {render_bytes}"
+assert render_bytes < 32_000, f"Initial page exceeds 32 KB: {render_bytes}"
 assert len(png) < 150_000, "Social card exceeds 150 KB"
 # Game art loads below the mission, separately from the initial text/logo budget.
 assert sum(p.stat().st_size for p in (ROOT / "art").glob("*.webp")) < 180_000, "Responsive game art exceeds 180 KB"
-assert not list(ROOT.rglob("*.js")), "No JavaScript runtime is needed"
+assert {p.name for p in ROOT.rglob("*.js")} == {"share.js"}, "No application runtime is needed"
 print(f"Static checks passed. Initial page: {render_bytes:,} bytes; social card: {len(png):,} bytes.")

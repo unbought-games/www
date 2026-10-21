@@ -25,10 +25,10 @@ def main():
         raise SystemExit('CloudFront distribution does not serve the website bucket')
     subprocess.run(['python3', str(ROOT / 'scripts/check.py')], check=True)
     # Upload all files each time so metadata changes are not skipped by size/mtime checks.
-    subprocess.run(aws + ['s3', 'cp', str(ROOT / 'public'), 's3://' + args.bucket + '/',
+    subprocess.run(aws + ['s3', 'cp', str(ROOT / 'dist'), 's3://' + args.bucket + '/',
                          '--recursive', '--exclude', '_headers', '--region', 'us-east-2',
                          '--cache-control', 'public, max-age=300, no-transform', '--only-show-errors'], check=True)
-    subprocess.run(aws + ['s3', 'sync', str(ROOT / 'public'), 's3://' + args.bucket + '/',
+    subprocess.run(aws + ['s3', 'sync', str(ROOT / 'dist'), 's3://' + args.bucket + '/',
                          '--delete', '--exclude', '_headers', '--region', 'us-east-2', '--only-show-errors'], check=True)
     invalidation = json.loads(subprocess.check_output(aws + ['cloudfront', 'create-invalidation',
                                     '--distribution-id', args.distribution_id, '--paths', '/*']))

@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 from urllib.parse import parse_qs, urlsplit
 
-PUBLIC = Path(__file__).resolve().parents[1] / 'public'
+PUBLIC = Path(__file__).resolve().parents[1] / 'dist'
 DOMAINS = ('unbought.games', 'www.unbought.games', 'unboughtgames.com', 'www.unboughtgames.com')
 
 

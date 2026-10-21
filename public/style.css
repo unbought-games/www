@@ -82,13 +82,12 @@ h2 { margin: 0; font-size: clamp(34px, 4vw, 58px); line-height: 1.05; letter-spa
 .game-description { max-width: 43ch; margin: 0; color: #c8c2b8; font-size: 16px; line-height: 1.65; }
 .game-description + .game-description { margin-top: 16px; }
 .availability { margin: 28px 0 16px; font-size: 14px; font-weight: 650; }
-.game-links { display: flex; flex-wrap: wrap; gap: 16px 28px; }
+.game-links { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 28px; }
 .game-links a { color: #f6f4ee; font-size: 14px; line-height: 1.6; text-underline-offset: 5px; }
 .game-links a:hover { text-decoration-thickness: 2px; }
 .game-links a:focus-visible { outline-color: #f6f4ee; }
 .planet { margin: 0; text-align: center; }
 .planet img { display: block; width: 100%; height: auto; }
-.planet figcaption { margin-top: 16px; color: #c8c2b8; font-size: 11px; line-height: 1.5; }
 .art-credit { margin: 16px 0 0; color: #615d59; font-size: 12px; line-height: 1.7; }
 .art-credit a { color: inherit; text-underline-offset: 3px; }
 @media (max-width: 959px) { .game { gap: 24px; grid-template-columns: minmax(0, 1fr) 240px; } }
@@ -97,3 +96,4 @@ h2 { margin: 0; font-size: clamp(34px, 4vw, 58px); line-height: 1.05; letter-spa
 .beta-note { max-width: 52ch; margin: 24px 0 0; color: #c8c2b8; font-size: 12px; line-height: 1.6; }
 footer nav { display: flex; gap: 16px; }
 footer a { color: inherit; text-underline-offset: 3px; }
+.game-links .play-link { padding: 8px 12px; background: #f6f4ee; color: #201e1d; text-decoration: none; }

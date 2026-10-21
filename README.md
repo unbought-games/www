@@ -1,5 +1,11 @@
 # Unbought public website
 
+AWS migration preparation is authorized as of 2026-10-21. Public DNS remains on
+Cloudflare until the owner changes Namecheap nameservers. New AWS resources are
+owned by `../infra/services/www/production` and `../infra/dns/aws`; existing
+Cloudflare resources and R2 state retain their current owners during overlap.
+See [AWS preparation](docs/aws-migration.md) for testing and release commands.
+
 Pure static HTML/CSS, hosted on **Cloudflare Pages**. The canonical domain is
 **https://unbought.games/**; `unboughtgames.com` and both `www` aliases redirect to
 it with HTTP 301, preserving path and query. The approved Accounts and Orbit

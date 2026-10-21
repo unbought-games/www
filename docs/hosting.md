@@ -1,5 +1,16 @@
 # Hosting decision
 
+## AWS consolidation approved October 21, 2026
+
+The owner authorized Terraform changes and a tested AWS website without another
+cost estimate. Website hosting moves to private S3 + CloudFront, and all three
+DNS zones are prepared in Route 53. Nameserver cutover is held for the owner, who
+will update Namecheap. Existing Cloudflare resources/state remain active during
+preparation. See [migration preparation](aws-migration.md).
+
+The game runtime allocation below is unchanged. The older decision to keep the
+website on Pages is superseded by this staged migration.
+
 ## Accepted October 20, 2026
 
 The public website stays on Cloudflare Pages. Accounts and Orbit share one AWS

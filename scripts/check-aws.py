@@ -45,6 +45,7 @@ def verify(edge):
             assert headers.get('Referrer-Policy') == 'strict-origin-when-cross-origin', path
             assert 'max-age=31536000' in headers.get('Strict-Transport-Security', ''), path
             assert "default-src 'none'" in headers.get('Content-Security-Policy', ''), path
+            assert "connect-src https://analytics.unbought.games;" in headers.get('Content-Security-Policy', ''), path
             assert 'no-transform' in headers.get('Cache-Control', ''), path
             assert 'camera=()' in headers.get('Permissions-Policy', ''), path
             if host == edge or path == '/404.html':

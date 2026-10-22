@@ -8,7 +8,7 @@ import { build } from './build.mjs';
 test('build paginates filtered archives, omits drafts/future posts and uses stable full-content RSS identities', async()=>{
   const root=await mkdtemp(join(tmpdir(),'unbought-news-'));
   try {
-    for (const dir of ['public','templates','content','artwork']) await cp(resolve(dir),join(root,dir),{recursive:true});
+    for (const dir of ['public','templates','content','artwork','config']) await cp(resolve(dir),join(root,dir),{recursive:true});
     // Fixtures must stay offline and independent of real publication history.
     await rm(join(root,'content'),{recursive:true});
     await mkdir(join(root,'content/posts'),{recursive:true});
@@ -30,5 +30,13 @@ test('build paginates filtered archives, omits drafts/future posts and uses stab
     assert.doesNotMatch(news,/Fixture update/);
     const article=await readFile(join(root,'dist/news/fixture-0/index.html'),'utf8');
     assert.match(article,/schema.org\/BlogPosting/);assert.match(article,/article:published_time/);assert.match(article,/twitter:card/);
+    for (const html of [page, news, article, await readFile(join(root,'dist/privacy/index.html'),'utf8')]) {
+      assert.equal((html.match(/src="\/analytics.js"/g)||[]).length, 1);
+    }
+    const analytics = await readFile(join(root,'dist/analytics.js'),'utf8');
+    assert.match(analytics, /"profile":"identified"/);
+    assert.match(analytics, /\/news\/fixture-0\//);
+    assert.doesNotMatch(analytics, /\/draft\/|\/future\//);
+    assert.doesNotMatch(await readFile(join(root,'dist/404.html'),'utf8'), /analytics.js/);
   } finally { await rm(root,{recursive:true,force:true}); }
 });

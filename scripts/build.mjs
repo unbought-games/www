@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { escape as e, parsePost, renderMarkdown, selectPosts, archivePath, feedPath } from './content.mjs';
 import { socialImage } from './social-images.mjs';
 import { importNews } from './import-news.mjs';
+import { addAnalytics } from './analytics.mjs';
 
 const BASE = 'https://unbought.games';
 const PAGE_SIZE = 10;
@@ -60,6 +61,7 @@ export async function build(root = resolve(dirname(fileURLToPath(import.meta.url
   home=home.replace('</header>','<nav aria-label="Main"><a href="/#orbit-title">Our games</a><a href="/news/">News</a></nav></header>');
   home=home.replace('</main>',`<section class="home-news"><div class="section-heading"><h2>Latest news.</h2><a href="/news/">All news ↗</a></div>${recent.map(p=>card(p,games)).join('')}</section></main>`);
   await save('index.html',home);
+  await addAnalytics(root, output, sitemap);
   await save('sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemap.map(p=>`<url><loc>${BASE+p.path}</loc>${p.updated?`<lastmod>${new Date(p.updated).toISOString()}</lastmod>`:''}</url>`).join('')}</urlset>`);
   console.log(`Built ${posts.length} posts, ${sitemap.length} pages, and ${(Object.keys(games).length+2)*3} RSS feeds.`);
   return {posts,output};

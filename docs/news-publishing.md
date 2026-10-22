@@ -66,6 +66,9 @@ the previous recorded deployment. Routine tooling/dependency commits are omitted
 The first record establishes a baseline; rollbacks don't announce reverse changes.
 Version releases import `docs/news/releases/vVERSION.md`. A human-written announcement
 for a version belongs in that file, alongside its detailed notes.
+When a numbered release and an official deployment use the exact same source
+revision, the release post supplies their shared notes. Both immutable publication
+records remain, but the website and feeds omit the duplicate deployment summary.
 
 The game owns its Markdown history and renders it locally for self-hosted players.
 www owns the official server's publication ledger. These are separate facts: a game

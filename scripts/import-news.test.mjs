@@ -25,5 +25,13 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     source.releases=[{commit:before,tag:'v0.1.0',published:'2026-10-21T14:00:00Z'}];
     writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify(source));
     const posts=await importNews(root,games);assert.equal(posts.length,2);assert.match(posts[0].body,/return fleets/);assert.equal(posts[1].body,'Original notes');assert.equal(posts[1].date,'2026-10-21T14:00:00Z');
+    // Exact revision matches share the release post; an older release above did not.
+    source.releases=[{commit:deployed,tag:'v0.1.0',published:'2026-10-21T14:00:00Z'}];
+    writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify(source));
+    const coordinated=await importNews(root,games);
+    assert.equal(coordinated.length,1);
+    assert.equal(coordinated[0].kind,'release');
+    assert.equal(coordinated[0].id,'orbit-imperium-v0-1-0');
+    assert.equal(coordinated[0].body,'Original notes');
   }finally{rmSync(root,{recursive:true,force:true});}
 });

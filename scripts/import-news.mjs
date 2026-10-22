@@ -42,8 +42,12 @@ export async function importNews(root, games) {
       try { git('cat-file','-e',commit+'^{commit}'); }
       catch { git('fetch','--quiet','--filter=blob:none','origin',commit); }
     };
+    // A coordinated numbered release owns the notes for its exact deployed build.
+    // Keep both publication records, but expose one post and one RSS item.
+    const releasedCommits = new Set(source.releases.map(record => record.commit));
     for (const record of source.deployments) {
       validateRecord(record,'deployment');
+      if (releasedCommits.has(record.commit)) continue;
       if (!record.previous) continue; // Establishing a baseline must not announce the entire repository history.
       fetch(record.commit);
       fetch(record.previous);

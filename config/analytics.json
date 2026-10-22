@@ -1,13 +1,11 @@
 {
   "endpoint": "https://analytics.unbought.games",
   "propertyId": "73b72aba-0091-453a-b9b4-ec2d60c8d456",
-  "publicToken": "48a3b89aec164fc288463f55238933be64dabb0609274ad8bf6c783ad4479245",
+  "publicToken": "e9009803678144889ff4d317f830221886a1b53811db4b1288bcaebca1998cb8",
   "policyVersion": 2,
-  "tokenId": "13e7e9cf-cef6-46d6-8a7f-67336dee2627",
-  "tokenExpiresAt": "2027-01-19T13:17:56.035934Z",
-  "profile": "identified",
   "handoffOrigins": {
     "https://accounts.unbought.games": "3531b7df-775e-4591-8c1e-f41e5c90b555",
     "https://orbitimperium.com": "afdcd37c-cae9-448e-8bce-e5ab663edf38"
-  }
+  },
+  "profile": "identified"
 }

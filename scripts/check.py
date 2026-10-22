@@ -21,7 +21,9 @@ for path in ROOT.rglob("*.html"):
     page = Page(path.read_text())
     assert any(t == "html" and a.get("lang") == "en" for t, a in page.tags), path
     assert sum(t == "h1" for t, _ in page.tags) == 1, path
-    assert all(a.get("src") == "/share.js" and "defer" in a for t, a in page.tags if t == "script"), "Only progressive sharing script is allowed"
+    assert all((a.get("src") == "/share.js" and "defer" in a) or
+               (a.get("src") == "/analytics.js" and a.get("type") == "module")
+               for t, a in page.tags if t == "script"), "Only sharing and first-party analytics scripts are allowed"
     for tag, attrs in page.tags:
         for key in ("href", "src"):
             value = attrs.get(key, "")
@@ -69,5 +71,7 @@ assert render_bytes < 32_000, f"Initial page exceeds 32 KB: {render_bytes}"
 assert len(png) < 150_000, "Social card exceeds 150 KB"
 # Game art loads below the mission, separately from the initial text/logo budget.
 assert sum(p.stat().st_size for p in (ROOT / "art").glob("*.webp")) < 180_000, "Responsive game art exceeds 180 KB"
-assert {p.name for p in ROOT.rglob("*.js")} == {"share.js"}, "No application runtime is needed"
+assert {p.name for p in ROOT.rglob("*.js")} == {"share.js", "analytics.js", "analytics-sdk.js"}
+analytics_bytes = sum((ROOT / p).stat().st_size for p in ("analytics.js", "analytics-sdk.js"))
+assert analytics_bytes < 40_000, f"Analytics exceeds 40 KB: {analytics_bytes}"
 print(f"Static checks passed. Initial page: {render_bytes:,} bytes; social card: {len(png):,} bytes.")

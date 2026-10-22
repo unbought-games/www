@@ -14,5 +14,8 @@
     "markdown-it": "14.3.3",
     "sharp": "0.35.5",
     "wrangler": "4.150.0"
+  },
+  "dependencies": {
+    "@unbought/analytics": "file:vendor/unbought-analytics-0.1.1.tgz"
   }
 }

@@ -201,6 +201,16 @@ reachable and the intended registration path is verified. Website copy does not
 control application access gates. There is no waitlist, newsletter collection or
 account sign-up form on this static site.
 
+The homepage's `#support` section previews the $10, $25, and $100 USD monthly
+memberships. Keep the prices, tier copy, and cosmetic benefits aligned with
+Accounts' `apps/web/lib/supporter-panel.tsx`. Selection and checkout stay in
+Accounts; this static page does not fetch billing state.
+The signup link uses `/sign-up?next=%2Faccount%2Fsupport`, and existing members
+link to `/account/support`. Deploy the Accounts Supporter page and its preserved
+authentication destination before publishing this homepage change. Verify both
+new-account and existing-account paths return to tier selection or membership
+management as appropriate.
+
 ## News and release publishing
 
 See [news publishing](docs/news-publishing.md) for Markdown authoring, filter URLs,

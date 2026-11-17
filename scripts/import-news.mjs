@@ -53,7 +53,11 @@ export async function importNews(root, games) {
       fetch(record.previous);
       try { git('merge-base','--is-ancestor',record.previous,record.commit); }
       catch { continue; } // A rollback is not a new feature announcement.
-      const changes = playerChanges(git('log','--first-parent','--format=%H%x09%s',`${record.previous}..${record.commit}`));
+      const editorialPath = 'docs/news/excluded-commits.json';
+      const hasEditorial = git('ls-tree','--name-only',record.commit,'--',editorialPath) === editorialPath;
+      const excluded = hasEditorial ? JSON.parse(git('show',`${record.commit}:${editorialPath}`)) : [];
+      if (!Array.isArray(excluded) || excluded.some(sha => typeof sha !== 'string' || !shaPattern.test(sha))) throw new Error('Invalid excluded news commits');
+      const changes = playerChanges(git('log','--first-parent','--format=%H%x09%s',`${record.previous}..${record.commit}`)).filter(change => !excluded.includes(change.commit));
       if (!changes.length) continue;
       const id = `${subject}-update-${record.id}`;
       const post = {

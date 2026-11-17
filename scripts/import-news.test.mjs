@@ -15,7 +15,11 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     mkdirSync(join(repo,'docs/news/releases'),{recursive:true});
     const release="---\nid: orbit-imperium-v0-1-0\ntitle: Original release\nsummary: Ready to play\ndate: '2026-10-21T12:00:00Z'\nsubject: orbit-imperium\nkind: release\nversion: 0.1.0\n---\nOriginal notes";
     writeFileSync(join(repo,'docs/news/releases/v0.1.0.md'),release);git('add','.');git('commit','-qm','feat: initial game');const before=git('rev-parse','HEAD');
+    git('-c','commit.gpgsign=false','commit','--allow-empty','-qm','feat: unfinished editor');
+    const withheld=git('rev-parse','HEAD');
+    writeFileSync(join(repo,'docs/news/excluded-commits.json'),JSON.stringify([withheld]));
     writeFileSync(join(repo,'fix.txt'),'fixed');git('add','.');git('commit','-qm','fix: return fleets');const deployed=git('rev-parse','HEAD');
+    writeFileSync(join(repo,'docs/news/excluded-commits.json'),'[]');
     writeFileSync(join(repo,'docs/news/releases/v0.1.0.md'),release.replace('Original notes','Unpublished rewrite'));git('add','.');git('commit','-qm','docs: rewrite draft');
     mkdirSync(join(root,'.cache'),{recursive:true});execFileSync('git',['clone','--bare','--quiet',repo,join(root,'.cache',subject)]);
     mkdirSync(join(root,'content/sources'),{recursive:true});
@@ -24,7 +28,7 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     assert.equal((await importNews(root,games)).length,1);
     source.releases=[{commit:before,tag:'v0.1.0',published:'2026-10-21T14:00:00Z'}];
     writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify(source));
-    const posts=await importNews(root,games);assert.equal(posts.length,2);assert.match(posts[0].body,/return fleets/);assert.equal(posts[1].body,'Original notes');assert.equal(posts[1].date,'2026-10-21T14:00:00Z');
+    const posts=await importNews(root,games);assert.equal(posts.length,2);assert.match(posts[0].body,/return fleets/);assert.doesNotMatch(posts[0].body,/unfinished editor/);assert.equal(posts[0].summary,'return fleets');assert.equal(posts[1].body,'Original notes');assert.equal(posts[1].date,'2026-10-21T14:00:00Z');
     // Exact revision matches share the release post; an older release above did not.
     source.releases=[{commit:deployed,tag:'v0.1.0',published:'2026-10-21T14:00:00Z'}];
     writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify(source));

@@ -63,6 +63,9 @@ release record makes them visible on www.
 
 Deployment summaries select player-facing feat/fix/perf Conventional Commits since
 the previous recorded deployment. Routine tooling/dependency commits are omitted.
+The deployed source may supply `docs/news/excluded-commits.json`, an array of full
+commit IDs to omit while features are not ready to announce. Exclusions are read
+from the recorded revision, never current main; malformed data fails the build.
 The first record establishes a baseline; rollbacks don't announce reverse changes.
 Version releases import `docs/news/releases/vVERSION.md`. A human-written announcement
 for a version belongs in that file, alongside its detailed notes.

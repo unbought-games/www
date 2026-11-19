@@ -73,6 +73,11 @@ export async function importNews(root, games) {
       if (git('rev-parse',record.commit+'^{commit}') !== record.commit) throw new Error('Source revision mismatch');
       const post = parsePost(git('show',`${record.commit}:docs/news/releases/${record.tag}.md`),record.tag);
       if (post.draft || post.kind !== 'release' || post.subject !== subject || post.version !== record.tag.slice(1)) throw new Error(`Release metadata mismatch: ${record.tag}`);
+      const deployed = source.deployments.find(deployment => deployment.commit === record.commit);
+      if (deployed) {
+        const day = new Intl.DateTimeFormat('en-US', {dateStyle:'long', timeZone:'UTC'}).format(new Date(deployed.published));
+        post.body = `The official ${game.name} server deployed ${record.tag} on ${day}.\n\n${post.body}`;
+      }
       result.push({...post,date:record.published,source:`https://github.com/${source.repository}/releases/tag/${record.tag}`});
     }
   }

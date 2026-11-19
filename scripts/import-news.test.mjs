@@ -36,6 +36,6 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     assert.equal(coordinated.length,1);
     assert.equal(coordinated[0].kind,'release');
     assert.equal(coordinated[0].id,'orbit-imperium-v0-1-0');
-    assert.equal(coordinated[0].body,'Original notes');
+    assert.equal(coordinated[0].body,'The official Orbit Imperium server deployed v0.1.0 on October 21, 2026.\n\nOriginal notes');
   }finally{rmSync(root,{recursive:true,force:true});}
 });

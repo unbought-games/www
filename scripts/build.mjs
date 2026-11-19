@@ -1,14 +1,13 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { escape as e, parsePost, renderMarkdown, selectPosts, archivePath, feedPath } from './content.mjs';
+import { escape as e, dateLabel, parsePost, renderMarkdown, selectPosts, archivePath, feedPath } from './content.mjs';
 import { socialImage } from './social-images.mjs';
 import { importNews } from './import-news.mjs';
 import { addAnalytics } from './analytics.mjs';
 
 const BASE = 'https://unbought.games';
 const PAGE_SIZE = 10;
-const dateLabel = date => new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'America/New_York'}).format(new Date(date));
 const subjectLabel = (subject,games) => subject === 'all' ? 'Everything' : subject === 'company' ? 'Company' : games[subject].name;
 const kindLabel = kind => ({news:'News',patch:'Server update',release:'Open-source release'}[kind]);
 const postPath = p => `/news/${p.id}/`;

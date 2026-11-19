@@ -2,6 +2,7 @@ import MarkdownIt from 'markdown-it';
 import { load, JSON_SCHEMA } from 'js-yaml';
 
 export const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export const dateLabel = date => new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'America/New_York'}).format(new Date(date));
 export const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export function parsePost(source, label = 'post') {
   const match = source.match(/^---\r?\n([\s\S]+?)\r?\n---\r?\n([\s\S]*)$/);

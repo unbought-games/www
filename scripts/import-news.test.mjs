@@ -23,7 +23,7 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     writeFileSync(join(repo,'docs/news/releases/v0.1.0.md'),release.replace('Original notes','Unpublished rewrite'));git('add','.');git('commit','-qm','docs: rewrite draft');
     mkdirSync(join(root,'.cache'),{recursive:true});execFileSync('git',['clone','--bare','--quiet',repo,join(root,'.cache',subject)]);
     mkdirSync(join(root,'content/sources'),{recursive:true});
-    const source={repository:games[subject].repository,deployments:[{id:'deploy',commit:deployed,previous:before,published:'2026-10-21T13:00:00Z'}],releases:[]};
+    const source={repository:games[subject].repository,deployments:[{id:'deploy',commit:deployed,previous:before,published:'2026-10-21T01:00:00Z'}],releases:[]};
     writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify(source));
     assert.equal((await importNews(root,games)).length,1);
     source.releases=[{commit:before,tag:'v0.1.0',published:'2026-10-21T14:00:00Z'}];
@@ -36,6 +36,6 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     assert.equal(coordinated.length,1);
     assert.equal(coordinated[0].kind,'release');
     assert.equal(coordinated[0].id,'orbit-imperium-v0-1-0');
-    assert.equal(coordinated[0].body,'The official Orbit Imperium server deployed v0.1.0 on October 21, 2026.\n\nOriginal notes');
+    assert.equal(coordinated[0].body,'The official Orbit Imperium server deployed v0.1.0 on October 20, 2026.\n\nOriginal notes');
   }finally{rmSync(root,{recursive:true,force:true});}
 });

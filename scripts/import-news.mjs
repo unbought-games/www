@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parsePost } from './content.mjs';
+import { dateLabel, parsePost } from './content.mjs';
 
 const shaPattern = /^[a-f0-9]{40}$/;
 export function validateRecord(record, kind) {
@@ -75,8 +75,7 @@ export async function importNews(root, games) {
       if (post.draft || post.kind !== 'release' || post.subject !== subject || post.version !== record.tag.slice(1)) throw new Error(`Release metadata mismatch: ${record.tag}`);
       const deployed = source.deployments.find(deployment => deployment.commit === record.commit);
       if (deployed) {
-        const day = new Intl.DateTimeFormat('en-US', {dateStyle:'long', timeZone:'UTC'}).format(new Date(deployed.published));
-        post.body = `The official ${game.name} server deployed ${record.tag} on ${day}.\n\n${post.body}`;
+        post.body = `The official ${game.name} server deployed ${record.tag} on ${dateLabel(deployed.published)}.\n\n${post.body}`;
       }
       result.push({...post,date:record.published,source:`https://github.com/${source.repository}/releases/tag/${record.tag}`});
     }

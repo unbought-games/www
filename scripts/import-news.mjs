@@ -3,11 +3,14 @@ import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { dateLabel, parsePost } from './content.mjs';
 
+import { seasonPosts, validateDeploymentTarget } from './season-news.mjs';
+
 const shaPattern = /^[a-f0-9]{40}$/;
 export function validateRecord(record, kind) {
   if (!shaPattern.test(record.commit) || !Number.isFinite(Date.parse(record.published))) throw new Error('Invalid publication revision/date');
   if (kind === 'release' && !/^v\d+\.\d+\.\d+$/.test(record.tag)) throw new Error('Invalid release tag');
   if (kind === 'deployment' && !/^[a-zA-Z0-9-]{1,100}$/.test(record.id)) throw new Error('Invalid deployment identity');
+  if (kind === 'deployment') validateDeploymentTarget(record);
   if (record.previous && !shaPattern.test(record.previous)) throw new Error('Invalid previous revision');
 }
 export function playerChanges(log) {
@@ -47,10 +50,18 @@ export async function importNews(root, games) {
     const releasedCommits = new Set(source.releases.map(record => record.commit));
     for (const record of source.deployments) {
       validateRecord(record,'deployment');
-      if (releasedCommits.has(record.commit)) continue;
+      const seasonal = record.source_branch?.startsWith('prod/');
+      if (!seasonal && releasedCommits.has(record.commit)) continue;
       if (!record.previous) continue; // Establishing a baseline must not announce the entire repository history.
       fetch(record.commit);
       fetch(record.previous);
+      if (seasonal) {
+        // A newly forked target can diverge from the last pre-cutover deployment.
+        // A rollback (current is an ancestor of previous) never announces a delta.
+        const base = git('merge-base', record.previous, record.commit);
+        if (base !== record.commit) result.push(...seasonPosts(git, subject, game, record));
+        continue;
+      }
       try { git('merge-base','--is-ancestor',record.previous,record.commit); }
       catch { continue; } // A rollback is not a new feature announcement.
       const editorialPath = 'docs/news/excluded-commits.json';
@@ -60,11 +71,12 @@ export async function importNews(root, games) {
       const changes = playerChanges(git('log','--first-parent','--format=%H%x09%s',`${record.previous}..${record.commit}`)).filter(change => !excluded.includes(change.commit));
       if (!changes.length) continue;
       const id = `${subject}-update-${record.id}`;
+      const location = record.universe_name ? 'in ' + record.universe_name : 'on the official ' + game.name + ' server';
       const post = {
         id,title:`${game.name} update · ${new Date(record.published).toISOString().slice(0,16).replace('T',' ') + ' UTC'}`,
-        summary:changes.length === 1 ? changes[0].text : `${changes.length} changes are live on the official server.`,
+        summary:changes.length === 1 ? changes[0].text : `${changes.length} changes are live ${record.universe_name ? 'in ' + record.universe_name : 'on the official server'}.`,
         date:record.published,subject,kind:'patch',template:'release',
-        body:`These changes are live on the official ${game.name} server. Official-server updates are published independently of numbered open-source releases.\n\n## Changes\n\n${changes.map(c=>`- ${c.text.replace(/[\\[\]<>*_`]/g,'\\$&')} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
+        body:`These changes are live ${location}. Official-server updates are published independently of numbered open-source releases.\n\n## Changes\n\n${changes.map(c=>`- ${c.text.replace(/[\\[\]<>*_`]/g,'\\$&')} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
       };
       result.push({...post,id,subject,kind:'patch',date:record.published,source:`https://github.com/${source.repository}/commit/${record.commit}`});
     }
@@ -73,9 +85,9 @@ export async function importNews(root, games) {
       if (git('rev-parse',record.commit+'^{commit}') !== record.commit) throw new Error('Source revision mismatch');
       const post = parsePost(git('show',`${record.commit}:docs/news/releases/${record.tag}.md`),record.tag);
       if (post.draft || post.kind !== 'release' || post.subject !== subject || post.version !== record.tag.slice(1)) throw new Error(`Release metadata mismatch: ${record.tag}`);
-      const deployed = source.deployments.find(deployment => deployment.commit === record.commit);
+      const deployed = source.deployments.find(deployment => deployment.commit === record.commit && !deployment.source_branch?.startsWith('prod/'));
       if (deployed) {
-        post.body = `The official ${game.name} server deployed ${record.tag} on ${dateLabel(deployed.published)}.\n\n${post.body}`;
+        post.body = `${deployed.universe_name || 'The official ' + game.name + ' server'} deployed ${record.tag} on ${dateLabel(deployed.published)}.\n\n${post.body}`;
       }
       result.push({...post,date:record.published,source:`https://github.com/${source.repository}/releases/tag/${record.tag}`});
     }

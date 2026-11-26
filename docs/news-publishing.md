@@ -61,7 +61,25 @@ They never execute game code. A missing source revision or invalid release fails
 build. Prepared release notes on game main are not announcements: only a published
 release record makes them visible on www.
 
-Deployment summaries select player-facing feat/fix/perf Conventional Commits since
+Production records for Orbit also carry the verified universe UUID, its public name,
+and the source branch. The deployment workflow supplies
+`--universe UUID --universe-name NAME --source-branch BRANCH` and
+`--previous FULL_SHA` for the prior verified deployment of the same universe.
+Omit the predecessor when opening a fresh universe. A retry of the same universe,
+source branch and commit uses the same record. An Accounts-only release with an
+unchanged Orbit revision leaves any pending Orbit publication to its original job. Older records remain addressable at their original paths.
+
+A deployment from a season branch reads the change notes newly available between
+those two exact source trees. This includes general fixes merged from main.
+Write the announcement in `docs/news/changes/` in the game repository. Include
+`audience: S001` for an Andromeda campaign note. `audience: game` is the default
+for a general Orbit note. Mark future content `draft: true` until its announcement
+is ready to accompany a verified deployment, and preserve note IDs across edits.
+The website groups new notes by audience into separate update pages and RSS items
+and links each title to the full note at the deployed SHA. A first deployment
+without a predecessor establishes the universe baseline.
+
+Main and historical deployment summaries select player-facing feat/fix/perf Conventional Commits since
 the previous recorded deployment. Routine tooling/dependency commits are omitted.
 The deployed source may supply `docs/news/excluded-commits.json`, an array of full
 commit IDs to omit while features are not ready to announce. Exclusions are read

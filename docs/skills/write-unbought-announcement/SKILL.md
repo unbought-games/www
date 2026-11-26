@@ -24,6 +24,11 @@ Ground claims in actual changes and verified publication state. Say explicitly
 when an update is live on the official server or belongs to a numbered release.
 Keep migration/upgrade instructions in the version's notes, with links to docs.
 
+An Orbit campaign announcement names its universe and season. Use the game's
+per-note audience when preparing mixed deployment notes. The website publishes
+separate game and season entries from a verified seasonal deployment. See
+`docs/news-publishing.md` for the build note and publication record formats.
+
 A writing request authorizes drafting and local edits. Follow the user's scope
 for pushing or publishing; don't infer permission to send to Discord or socials.
 If publishing is authorized, run `npm run check`, inspect the generated post and

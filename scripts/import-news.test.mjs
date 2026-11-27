@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { renderMarkdown } from './content.mjs';
 import { importNews } from './import-news.mjs';
 
 test('imports pinned released notes and deployed deltas, never unpublished notes on main',async()=>{
@@ -37,5 +38,13 @@ test('imports pinned released notes and deployed deltas, never unpublished notes
     assert.equal(coordinated[0].kind,'release');
     assert.equal(coordinated[0].id,'orbit-imperium-v0-1-0');
     assert.equal(coordinated[0].body,'The official Orbit Imperium server deployed v0.1.0 on October 20, 2026.\n\nOriginal notes');
+    Object.assign(source.deployments[0], {
+      universe: '11111111-1111-4111-8111-111111111111', universe_name: 'Outer *Arm*', source_branch: 'main'
+    });
+    for (const releases of [source.releases, []]) {
+      writeFileSync(join(root,'content/sources',subject+'.json'),JSON.stringify({...source,releases}));
+      const [scoped] = await importNews(root,games);
+      assert.ok(renderMarkdown(scoped.body).includes('Outer *Arm*'));
+    }
   }finally{rmSync(root,{recursive:true,force:true});}
 });

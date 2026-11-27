@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { dateLabel, parsePost } from './content.mjs';
+import { dateLabel, markdownLabel, parsePost } from './content.mjs';
 
 import { seasonPosts, validateDeploymentTarget } from './season-news.mjs';
 
@@ -76,7 +76,7 @@ export async function importNews(root, games) {
         id,title:`${game.name} update · ${new Date(record.published).toISOString().slice(0,16).replace('T',' ') + ' UTC'}`,
         summary:changes.length === 1 ? changes[0].text : `${changes.length} changes are live ${record.universe_name ? 'in ' + record.universe_name : 'on the official server'}.`,
         date:record.published,subject,kind:'patch',template:'release',
-        body:`These changes are live ${location}. Official-server updates are published independently of numbered open-source releases.\n\n## Changes\n\n${changes.map(c=>`- ${c.text.replace(/[\\[\]<>*_`]/g,'\\$&')} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
+        body:`These changes are live ${markdownLabel(location)}. Official-server updates are published independently of numbered open-source releases.\n\n## Changes\n\n${changes.map(c=>`- ${markdownLabel(c.text)} ([commit](https://github.com/${source.repository}/commit/${c.commit}))`).join('\n')}\n`,
       };
       result.push({...post,id,subject,kind:'patch',date:record.published,source:`https://github.com/${source.repository}/commit/${record.commit}`});
     }
@@ -87,7 +87,7 @@ export async function importNews(root, games) {
       if (post.draft || post.kind !== 'release' || post.subject !== subject || post.version !== record.tag.slice(1)) throw new Error(`Release metadata mismatch: ${record.tag}`);
       const deployed = source.deployments.find(deployment => deployment.commit === record.commit && !deployment.source_branch?.startsWith('prod/'));
       if (deployed) {
-        post.body = `${deployed.universe_name || 'The official ' + game.name + ' server'} deployed ${record.tag} on ${dateLabel(deployed.published)}.\n\n${post.body}`;
+        post.body = `${markdownLabel(deployed.universe_name || 'The official ' + game.name + ' server')} deployed ${record.tag} on ${dateLabel(deployed.published)}.\n\n${post.body}`;
       }
       result.push({...post,date:record.published,source:`https://github.com/${source.repository}/releases/tag/${record.tag}`});
     }

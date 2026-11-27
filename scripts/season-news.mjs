@@ -1,4 +1,5 @@
 import { load, JSON_SCHEMA } from 'js-yaml';
+import { markdownLabel } from './content.mjs';
 
 const seasonPattern = /^prod\/(S\d{3})$/;
 const uuidPattern = /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/;
@@ -46,10 +47,6 @@ function addedNotes(git, previous, commit) {
   const old = publishedNotes(git, previous, oldFiles);
   const current = publishedNotes(git, commit, newFiles);
   return [...current.values()].filter(note => !old.has(note.id));
-}
-
-function markdownLabel(value) {
-  return value.replace(/[\\[\]<>*_`]/g, '\\$&');
 }
 
 export function seasonPosts(git, subject, game, record) {
